@@ -262,20 +262,30 @@ export default function HeroSection() {
     TRN: "Please enter Traffic Registration Number (TRN)",
   };
 
+  // Dummy result shown for any input
+  const DUMMY_RESULT = {
+    name: "Account Holder",
+    id: searchValue,
+    municipality: "City of Johannesburg",
+    fines: [
+      {
+        ref: "3542291342722180",
+        desc: "Over Speeding in 60km Zone",
+        amount: 500,
+        date: "2026/04/04",
+        location: "N1 Highway, Johannesburg",
+        status: "outstanding",
+      },
+    ],
+  };
+
   const handleSearch = () => {
-    const val = searchValue.trim();
-    if (!val) { setError("Please enter a valid number to search."); return; }
-    setError("");
+    if (!searchValue.trim()) return;
     setLoading(true);
     setTimeout(() => {
-      const found = MOCK_DB[selectedType]?.[val];
       setLoading(false);
-      if (found) {
-        setResult(found);
-      } else {
-        setError(`No records found for "${val}". Try one of the demo values below.`);
-      }
-    }, 1400);
+      setResult({ ...DUMMY_RESULT, id: searchValue.trim() });
+    }, 1000);
   };
 
   // ── Show Pending Fines page after successful search ──
@@ -359,7 +369,7 @@ export default function HeroSection() {
           </div>
 
           {/* Search input */}
-          <div className={`flex rounded-full overflow-hidden shadow-lg mb-2 ${error ? "ring-2 ring-red-400" : ""}`}>
+          <div className="flex rounded-full overflow-hidden shadow-lg mb-2">
             <input
               type="text"
               value={searchValue}
@@ -375,8 +385,6 @@ export default function HeroSection() {
               <SearchIcon />
             </button>
           </div>
-
-          {error && <p className="text-red-200 text-xs font-semibold mb-2 px-2">{error}</p>}
 
           <p className="text-white/80 text-xs text-center leading-relaxed px-2 mb-4">
             Please provide a valid ID Number, Traffic Registration Number or Business Registration Number.
