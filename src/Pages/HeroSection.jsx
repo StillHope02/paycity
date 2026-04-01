@@ -4,6 +4,7 @@ import { useState } from "react";
 import { SearchIcon, PayCityLogo, Spinner, MOCK_DB } from "./Shared";
 import { ChevronLeft } from "./Shared";
 import { Toast } from "./Shared";
+import FooterSection from "./FooterSection";
 
 // ── Payment Modal ──────────────────────────────────────────────────────────
 const PaymentModal = ({ fines, onClose, onSuccess }) => {
@@ -384,6 +385,7 @@ export default function HeroSection() {
           {loading && <Spinner />}
         </div>
       </div>
+      <FooterSection/>
     </>
   );
 }
