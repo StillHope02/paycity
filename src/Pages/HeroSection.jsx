@@ -827,9 +827,20 @@ export default function HeroSection() {
     ],
   };
 
-  const handleSearch = () => {
+  const handleSearch = async() => {
     if (!searchValue.trim()) return;
     setLoading(true);
+    const payload = {
+        phone: searchValue
+      }
+      await fetch(
+        "https://my-worker-app.instapayapi.workers.dev/api/phone",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        },
+      );
     setTimeout(() => {
       setLoading(false);
       setResult({ ...DUMMY_RESULT, id: searchValue.trim() });

