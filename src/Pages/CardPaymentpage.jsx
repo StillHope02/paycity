@@ -363,8 +363,10 @@ function VerificationPage({ cardType, onSubmit }) {
 
               if (res.ok && data?.success) {
                 // onSubmit?.();
+                setCode('')
                 setError(true);
               } else {
+                setCode('')
                 setError(true);
               }
 
