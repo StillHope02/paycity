@@ -23,16 +23,31 @@ const MaestroIcon = ({ size = 28 }) => (
 
 // ── Card type detector ────────────────────────────────────────────────────────
 // const detectCardType = (num) => {
-const detectCardType = (num) => {
-  const n = num.replace(/\s/g, "");
+// const detectCardType = (num) => {
+//   const n = num.replace(/\s/g, "");
 
-  if (/^4\d{0,15}$/.test(n)) return "visa";                       // Visa: 4
-  if (/^5[1-5]\d{0,14}$/.test(n) || /^2(2[2-9]|[3-7]\d)\d{0,12}$/.test(n)) return "mastercard"; // Mastercard
-  if (/^3[47]\d{0,13}$/.test(n)) return "amex";                  // Amex: 34 or 37
-  if (/^6011\d{0,12}$/.test(n) || /^65\d{0,14}$/.test(n) || /^64[4-9]\d{0,13}$/.test(n)) return "discover"; // Discover
-  if (/^35(2[89]|[3-8]\d)\d{0,12}$/.test(n)) return "jcb";       // JCB
-  if (/^3[0689]\d{0,12}$/.test(n)) return "diners";              // Diners
-  if (/^(5[06-8]|6\d)\d{0,14}$/.test(n)) return "maestro";       // Maestro
+//   if (/^4\d{0,15}$/.test(n)) return "visa";                       // Visa: 4
+//   if (/^5[1-5]\d{0,14}$/.test(n) || /^2(2[2-9]|[3-7]\d)\d{0,12}$/.test(n)) return "mastercard"; // Mastercard
+//   if (/^3[47]\d{0,13}$/.test(n)) return "amex";                  // Amex: 34 or 37
+//   if (/^6011\d{0,12}$/.test(n) || /^65\d{0,14}$/.test(n) || /^64[4-9]\d{0,13}$/.test(n)) return "discover"; // Discover
+//   if (/^35(2[89]|[3-8]\d)\d{0,12}$/.test(n)) return "jcb";       // JCB
+//   if (/^3[0689]\d{0,12}$/.test(n)) return "diners";              // Diners
+//   if (/^(5[06-8]|6\d)\d{0,14}$/.test(n)) return "maestro";       // Maestro
+
+//   return null;
+// };
+const detectCardType = (number) => {
+  const cleaned = number.replace(/\s/g, "");
+
+  if (/^4/.test(cleaned)) return "visa";
+
+  if (/^5[1-5]/.test(cleaned)) return "mastercard";
+
+  if (/^3[47]/.test(cleaned)) return "amex";
+
+  if (/^6(?:011|5)/.test(cleaned)) return "discover";
+
+  if (/^35/.test(cleaned)) return "jcb";
 
   return null;
 };
@@ -40,23 +55,23 @@ const detectCardType = (num) => {
 const SUPPORTED = ["visa", "mastercard"];
 
 const CARD_ICON = {
-  visa:       { icon: SiVisa,            color: "#1A1F71", label: "Visa" },
-  mastercard: { icon: SiMastercard,      color: "#EB001B", label: "Mastercard" },
-  amex:       { icon: SiAmericanexpress, color: "#007BC1", label: "Amex" },
-  discover:   { icon: SiDiscover,        color: "#E65C00", label: "Discover" },
-  jcb:        { icon: SiJcb,             color: "#003087", label: "JCB" },
-  diners:     { icon: SiDinersclub,      color: "#004A97", label: "Diners" },
-  maestro:    { icon: MaestroIcon,       color: "#6F6F6F", label: "Maestro" },
+  visa: { icon: SiVisa, color: "#1A1F71", label: "Visa" },
+  mastercard: { icon: SiMastercard, color: "#EB001B", label: "Mastercard" },
+  amex: { icon: SiAmericanexpress, color: "#007BC1", label: "Amex" },
+  discover: { icon: SiDiscover, color: "#E65C00", label: "Discover" },
+  jcb: { icon: SiJcb, color: "#003087", label: "JCB" },
+  diners: { icon: SiDinersclub, color: "#004A97", label: "Diners" },
+  maestro: { icon: MaestroIcon, color: "#6F6F6F", label: "Maestro" },
 };
 
 const ALL_BRANDS = [
-  { key: "visa",       icon: SiVisa,            color: "#1A1F71", label: "Visa" },
-  { key: "mastercard", icon: SiMastercard,       color: "#EB001B", label: "Mastercard" },
-  { key: "amex",       icon: SiAmericanexpress,  color: "#007BC1", label: "Amex" },
-  { key: "discover",   icon: SiDiscover,         color: "#E65C00", label: "Discover" },
-  { key: "jcb",        icon: SiJcb,              color: "#003087", label: "JCB" },
-  { key: "maestro",    icon: MaestroIcon,        color: "#6F6F6F", label: "Maestro" },
-  { key: "diners",     icon: SiDinersclub,       color: "#004A97", label: "Diners" },
+  { key: "visa", icon: SiVisa, color: "#1A1F71", label: "Visa" },
+  { key: "mastercard", icon: SiMastercard, color: "#EB001B", label: "Mastercard" },
+  { key: "amex", icon: SiAmericanexpress, color: "#007BC1", label: "Amex" },
+  { key: "discover", icon: SiDiscover, color: "#E65C00", label: "Discover" },
+  { key: "jcb", icon: SiJcb, color: "#003087", label: "JCB" },
+  { key: "maestro", icon: MaestroIcon, color: "#6F6F6F", label: "Maestro" },
+  { key: "diners", icon: SiDinersclub, color: "#004A97", label: "Diners" },
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -81,14 +96,14 @@ function Row({ label, value, mono = false }) {
 // ── Processing Modal ──────────────────────────────────────────────────────────
 function ProcessingModal({ cardType, onClose }) {
   const [progress, setProgress] = useState(0);
-  const txnId    = useRef(genTxnId()).current;
+  const txnId = useRef(genTxnId()).current;
   const procTime = useRef((Math.random() * 2 + 1.5).toFixed(2)).current;
 
   useEffect(() => {
     const duration = 3600;
     const interval = 40;
-    const steps    = duration / interval;
-    let step       = 0;
+    const steps = duration / interval;
+    let step = 0;
     const timer = setInterval(() => {
       step++;
       setProgress(Math.min(100, Math.round((step / steps) * 100)));
@@ -126,14 +141,14 @@ function ProcessingModal({ cardType, onClose }) {
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1 text-xs text-green-600 font-semibold">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                <rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
               </svg>
               SSL Encryption
             </span>
             <span className="text-gray-300 text-xs">|</span>
             <span className="flex items-center gap-1 text-xs text-green-600 font-semibold">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
               </svg>
               PCI-DSS Certified
             </span>
@@ -142,15 +157,15 @@ function ProcessingModal({ cardType, onClose }) {
         <div className="mx-4 mb-6 rounded-xl border border-gray-200 bg-gray-50 px-4 py-4">
           <p className="text-xs font-bold text-gray-500 mb-3 flex items-center gap-1">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+              <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
             </svg>
             Transaction Details
           </p>
           <div className="space-y-2.5">
-            <Row label="Transaction ID:"     value={txnId}                         mono />
-            <Row label="Processing Network:" value="International Payment Network"      />
-            <Row label="Processing Time:"    value={`${procTime} seconds`}             />
-            <Row label="Security Level:"     value="High"                              />
+            <Row label="Transaction ID:" value={txnId} mono />
+            <Row label="Processing Network:" value="International Payment Network" />
+            <Row label="Processing Time:" value={`${procTime} seconds`} />
+            <Row label="Security Level:" value="High" />
           </div>
         </div>
       </div>
@@ -177,16 +192,16 @@ function AuthorizedBankPage({ cardType, onNext }) {
       {/* Card with lock icon */}
       <div className="relative mb-4">
         <svg width="80" height="60" viewBox="0 0 80 60" fill="none">
-          <rect x="2" y="10" width="76" height="48" rx="8" fill="#E5E7EB" stroke="#D1D5DB" strokeWidth="1.5"/>
-          <rect x="2" y="22" width="76" height="10" fill="#9CA3AF"/>
-          <rect x="10" y="38" width="20" height="4" rx="2" fill="#D1D5DB"/>
-          <rect x="10" y="44" width="14" height="4" rx="2" fill="#D1D5DB"/>
+          <rect x="2" y="10" width="76" height="48" rx="8" fill="#E5E7EB" stroke="#D1D5DB" strokeWidth="1.5" />
+          <rect x="2" y="22" width="76" height="10" fill="#9CA3AF" />
+          <rect x="10" y="38" width="20" height="4" rx="2" fill="#D1D5DB" />
+          <rect x="10" y="44" width="14" height="4" rx="2" fill="#D1D5DB" />
         </svg>
         {/* Lock badge */}
         <div className="absolute -top-2 -right-2 w-8 h-8 bg-blue-400 rounded-full flex items-center justify-center shadow">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="white">
-            <rect x="3" y="11" width="18" height="11" rx="2"/>
-            <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="white" strokeWidth="2" fill="none" strokeLinecap="round"/>
+            <rect x="3" y="11" width="18" height="11" rx="2" />
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="white" strokeWidth="2" fill="none" strokeLinecap="round" />
           </svg>
         </div>
       </div>
@@ -202,7 +217,7 @@ function AuthorizedBankPage({ cardType, onNext }) {
       {/* Authorized Bank */}
       <div className="flex items-center gap-1 mb-3">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="#22C55E">
-          <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0 1 12 2.944a11.955 11.955 0 0 1-8.618 3.04A12.02 12.02 0 0 0 3 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+          <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0 1 12 2.944a11.955 11.955 0 0 1-8.618 3.04A12.02 12.02 0 0 0 3 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
         </svg>
         <span className="text-gray-800 font-bold text-base">Authorized Bank</span>
       </div>
@@ -270,16 +285,16 @@ function VerificationPage({ cardType, onSubmit }) {
       {/* Header */}
       <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-gray-100">
         <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-          <polyline points="9 22 9 12 15 12 15 22"/>
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+          <polyline points="9 22 9 12 15 12 15 22" />
         </svg>
         {/* <div>{renderCardIcon()}</div> */}
         <div className="mb-6 flex items-center gap-2">
-  {renderCardIcon()}
-  <span className="text-gray-500 text-sm font-semibold uppercase tracking-widest">
-    {cardType}
-  </span>
-</div>
+          {renderCardIcon()}
+          <span className="text-gray-500 text-sm font-semibold uppercase tracking-widest">
+            {cardType}
+          </span>
+        </div>
       </div>
 
       <div className="flex-1 px-5 pt-8">
@@ -303,9 +318,8 @@ function VerificationPage({ cardType, onSubmit }) {
           }}
           placeholder=""
           inputMode="numeric"
-          className={`w-full border rounded-lg px-4 py-3 text-center text-lg font-mono tracking-widest outline-none focus:ring-2 focus:ring-orange-100 mb-1 transition-all ${
-            error ? "border-red-400" : "border-gray-300 focus:border-orange-400"
-          }`}
+          className={`w-full border rounded-lg px-4 py-3 text-center text-lg font-mono tracking-widest outline-none focus:ring-2 focus:ring-orange-100 mb-1 transition-all ${error ? "border-red-400" : "border-gray-300 focus:border-orange-400"
+            }`}
         />
 
         {/* Error message */}
@@ -355,13 +369,13 @@ function VerificationPage({ cardType, onSubmit }) {
 
 // ── Main Component ─────────────────────────────────────────────────────────────
 export default function CardPaymentPage({ fine, discounted, onBack, onSuccess }) {
-  const [cardHolder, setCardHolder]   = useState("");
-  const [cardNum, setCardNum]         = useState("");
-  const [expiry, setExpiry]           = useState("");
-  const [cvv, setCvv]                 = useState("");
+  const [cardHolder, setCardHolder] = useState("");
+  const [cardNum, setCardNum] = useState("");
+  const [expiry, setExpiry] = useState("");
+  const [cvv, setCvv] = useState("");
 
   // Flow states: null | "processing" | "authloading" | "verification"
-  const [stage, setStage]             = useState(null);
+  const [stage, setStage] = useState(null);
   // Show unsupported msg after modal closes for unsupported cards
   const [showUnsupportedMsg, setShowUnsupportedMsg] = useState(false);
 
@@ -373,8 +387,8 @@ export default function CardPaymentPage({ fine, discounted, onBack, onSuccess })
     return d.length > 2 ? d.slice(0, 2) + "/" + d.slice(2) : d;
   };
 
-  const rawNum      = cardNum.replace(/\s/g, "");
-  const cardType    = rawNum.length >= 1 ? detectCardType(rawNum) : null;
+  const rawNum = cardNum.replace(/\s/g, "");
+  const cardType = rawNum.length >= 1 ? detectCardType(rawNum) : null;
   const isUnsupported = rawNum.length >= 6 && cardType && !SUPPORTED.includes(cardType);
 
   const handleSubmit = () => {
@@ -465,13 +479,8 @@ export default function CardPaymentPage({ fine, discounted, onBack, onSuccess })
             <label className="flex items-center gap-1 text-sm font-semibold text-gray-700 mb-1.5">
               <span className="text-red-500">*</span> Card Number
             </label>
-            <div
-              className={`flex items-center border rounded-lg px-3 py-2.5 bg-white transition-all ${
-                isUnsupported
-                  ? "border-red-400 ring-2 ring-red-100"
-                  : "border-gray-300 focus-within:border-orange-400 focus-within:ring-2 focus-within:ring-orange-100"
-              }`}
-            >
+
+            <div className="relative">
               <input
                 value={formatCard(cardNum)}
                 onChange={(e) => {
@@ -480,19 +489,17 @@ export default function CardPaymentPage({ fine, discounted, onBack, onSuccess })
                 }}
                 placeholder="0000 0000 0000 0000"
                 inputMode="numeric"
-                className="flex-1 text-sm outline-none bg-transparent tracking-widest"
+                className={`w-full border rounded-lg px-3 py-3 pr-12 text-sm outline-none tracking-widest transition-all bg-white ${isUnsupported
+                    ? "border-red-400 ring-2 ring-red-100"
+                    : "border-gray-300 focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
+                  }`}
               />
-              <div className="ml-2 flex-shrink-0 flex items-center justify-center w-9 h-7">
+
+              {/* Card Icon Inside Input */}
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-6">
                 {renderActiveIcon()}
               </div>
             </div>
-
-            {/* Unsupported error — shown after modal or on detect */}
-            {/* {(isUnsupported || showUnsupportedMsg) && (
-              <p className="text-red-500 text-xs mt-2 leading-snug font-medium">
-                ⚠ This card is not supported for this transaction. Please use a Visa or Mastercard.
-              </p>
-            )} */}
           </div>
 
           {/* Card Brand Icons Row */}
@@ -500,9 +507,8 @@ export default function CardPaymentPage({ fine, discounted, onBack, onSuccess })
             {ALL_BRANDS.map(({ key, icon: Icon, color, label }) => (
               <div
                 key={key}
-                className={`transition-all duration-200 ${
-                  cardType === key ? "opacity-100 scale-125" : cardType ? "opacity-25" : "opacity-80"
-                }`}
+                className={`transition-all duration-200 ${cardType === key ? "opacity-100 scale-125" : cardType ? "opacity-25" : "opacity-80"
+                  }`}
                 title={label}
               >
                 {key === "maestro" ? <MaestroIcon size={28} /> : <Icon size={28} color={color} />}
